@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-sidebar="full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HTML &amp; CSS Mastery</title>
+  <meta name="description" content="100 hands-on HTML and CSS practice projects with step-by-step briefs, hints, self-check corrections and progress tracking. Works offline from your own computer.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!--
+    This small script runs BEFORE the page is drawn (it is not deferred), so:
+      - the saved light/dark theme is applied without a flash of the wrong colours;
+      - the sidebar starts in the right state (full or icon rail).
+    It only reads from localStorage. theme.js and router.js take over once the page has loaded.
+  -->
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var theme = null;
+      var sidebar = "auto";
+      try {
+        theme = window.localStorage.getItem("htmlCssMastery_theme");
+        var prefs = JSON.parse(window.localStorage.getItem("htmlCssMastery_uiPreferences") || "null");
+        if (prefs && (prefs.sidebar === "expanded" || prefs.sidebar === "collapsed")) {
+          sidebar = prefs.sidebar;
+        }
+      } catch (error) {
+        // Storage is blocked or the saved value is damaged: fall back to the defaults below.
+      }
+      if (theme !== "light" && theme !== "dark") {
+        theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      if (sidebar === "auto") {
+        sidebar = window.matchMedia && window.matchMedia("(min-width: 1024px)").matches ? "expanded" : "collapsed";
+      }
+      root.setAttribute("data-theme", theme);
+      root.setAttribute("data-sidebar", sidebar === "expanded" ? "full" : "rail");
+
+      // Remember scripts that fail while the page loads (for example after editing a data file),
+      // so script.js can point to the file that needs checking.
+      window.HCM_LOAD_ERRORS = [];
+      window.addEventListener("error", function (event) {
+        window.HCM_LOAD_ERRORS.push({ file: event.filename || "", line: event.lineno || 0, message: event.message || "Unknown error" });
+      });
+    })();
+  </script>
+
+  <!--
+    Everything else uses "defer": the browser downloads these while it reads the page,
+    then runs them in exactly this order once the HTML is ready.
+    Order matters: project data → correction data → theme → progress → main script.
+    ES modules and fetch() are not used, because browsers block both when a page is
+    opened straight from your disk (a file:// address).
+  -->
+  <script defer src="js/data/site.js"></script>
+  <script defer src="js/data/levels.js"></script>
+  <script defer src="js/data/topics.js"></script>
+  <script defer src="js/data/projects-1-beginner.js"></script>
+  <script defer src="js/data/projects-2-intermediate.js"></script>
+  <script defer src="js/data/projects-3-advanced.js"></script>
+  <script defer src="js/data/projects-4-mastery.js"></script>
+
+  <script defer src="js/data/corrections-1-beginner.js"></script>
+  <script defer src="js/data/corrections-2-intermediate.js"></script>
+  <script defer src="js/data/corrections-3-advanced.js"></script>
+  <script defer src="js/data/corrections-4-mastery.js"></script>
+
+  <script defer src="js/catalog.js"></script>
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/theme.js"></script>
+  <script defer src="js/preferences.js"></script>
+  <script defer src="js/progress.js"></script>
+  <script defer src="js/ui.js"></script>
+  <script defer src="js/solutions.js"></script>
+
+  <script defer src="js/pages/dashboard-page.js"></script>
+  <script defer src="js/pages/library-page.js"></script>
+  <script defer src="js/pages/path-page.js"></script>
+  <script defer src="js/pages/topics-page.js"></script>
+  <script defer src="js/pages/project-page.js"></script>
+  <script defer src="js/pages/self-check-page.js"></script>
+  <script defer src="js/pages/progress-page.js"></script>
+
+  <script defer src="js/router.js"></script>
+  <script defer src="js/script.js"></script>
+</head>
+<body>
+  <!-- Icon sprite: each icon is drawn once here and reused with <use href="#i-name">. -->
+  <svg class="icon-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="i-logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="currentColor" stroke="none"/><path d="M11 10l-5 6 5 6M21 10l5 6-5 6M14 22.5h4" fill="none" style="stroke: var(--color-on-accent, #fff)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+      <symbol id="i-path" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h5a3 3 0 0 0 0-6h-2a3 3 0 0 1 0-6h5"/></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></symbol>
+      <symbol id="i-checklist" viewBox="0 0 24 24"><path d="M4 6l1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17"/><path d="M11 6h9M11 12h9M11 18h9"/></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V11M11 20V5M17 20v-6M3 20h18"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+      <symbol id="i-sidebar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+      <symbol id="i-done" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></symbol>
+      <symbol id="i-todo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></symbol>
+      <symbol id="i-half" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.3 1 2.1h5c0-.8.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol>
+      <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18v.5"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></symbol>
+      <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-5 1-8.5z"/></symbol>
+      <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M4 20h16"/></symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5M4 20h16"/></symbol>
+      <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M5.5 15a8 8 0 1 0 1.3-8.3L4 10"/></symbol>
+      <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5z"/><path d="M2 13l10 5 10-5"/></symbol>
+      <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <button type="button" class="icon-button sidebar-toggle" id="sidebar-toggle" aria-controls="site-nav" aria-expanded="true">
+      <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-sidebar"></use></svg>
+      <span class="visually-hidden">Show navigation labels</span>
+    </button>
+    <a class="brand" href="#/">
+      <svg class="brand__mark" aria-hidden="true" focusable="false"><use href="#i-logo"></use></svg>
+      <span class="brand__text">
+        <span class="brand__name">HTML &amp; CSS Mastery</span>
+        <span class="brand__tagline">100 Practice Projects</span>
+      </span>
+    </a>
+    <div class="site-header__actions">
+      <button type="button" class="icon-button theme-toggle" id="theme-toggle" aria-label="Switch to dark theme" title="Switch to dark theme">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-moon"></use></svg>
+        <span class="theme-toggle__text" aria-hidden="true">Dark</span>
+      </button>
+      <button type="button" class="icon-button menu-button" id="menu-toggle" aria-controls="site-nav" aria-expanded="false">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-menu"></use></svg>
+        <span class="menu-button__label">Menu</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar" id="site-nav" aria-label="Main">
+      <ul class="nav-list">
+        <li><a class="nav-link" href="#/" data-nav="dashboard" title="Dashboard"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-home"></use></svg><span class="nav-link__label">Dashboard</span></a></li>
+        <li><a class="nav-link" href="#/projects" data-nav="library" title="Project Library"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-grid"></use></svg><span class="nav-link__label">Project Library</span></a></li>
+        <li><a class="nav-link" href="#/path" data-nav="path" title="Learning Path"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-path"></use></svg><span class="nav-link__label">Learning Path</span></a></li>
+        <li><a class="nav-link" href="#/topics" data-nav="topics" title="Topic Index"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-tag"></use></svg><span class="nav-link__label">Topic Index</span></a></li>
+        <li><a class="nav-link" href="#/self-check" data-nav="self-check" title="Self-Check"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-checklist"></use></svg><span class="nav-link__label">Self-Check</span></a></li>
+        <li><a class="nav-link" href="#/progress" data-nav="progress" title="Progress Tracker"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-chart"></use></svg><span class="nav-link__label">Progress Tracker</span></a></li>
+      </ul>
+      <div class="sidebar__footer" id="sidebar-footer"></div>
+    </nav>
+
+    <div class="content">
+      <div class="app-notices" id="app-notices"></div>
+      <main id="main" class="main" tabindex="-1">
+        <noscript>
+          <div class="notice notice--warning">
+            <p><strong>JavaScript is turned off.</strong> HTML &amp; CSS Mastery builds its pages with JavaScript. Turn JavaScript on in your browser settings, then reload this page.</p>
+          </div>
+        </noscript>
+        <p class="loading-message" id="loading-message">Loading projects…</p>
+      </main>
+      <footer class="site-footer">
+        <p>HTML &amp; CSS Mastery runs entirely on your computer. Your progress is saved in this browser only — use <a href="#/progress">Export progress</a> to keep a backup.</p>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Short status messages ("Project 12 completed") appear here and are read out by screen readers. -->
+  <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+
+  <!-- One reusable confirmation dialog (mark complete, reset, import). -->
+  <dialog class="dialog" id="confirm-dialog" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-body">
+    <form method="dialog" class="dialog__form">
+      <h2 class="dialog__title" id="confirm-dialog-title">Are you sure?</h2>
+      <div class="dialog__body" id="confirm-dialog-body"></div>
+      <label class="dialog__ack" id="confirm-dialog-ack" hidden>
+        <input type="checkbox" id="confirm-dialog-ack-input">
+        <span id="confirm-dialog-ack-text">I understand</span>
+      </label>
+      <div class="dialog__actions">
+        <button type="submit" class="button button--secondary" value="cancel" id="confirm-dialog-cancel">Cancel</button>
+        <button type="submit" class="button button--primary" value="confirm" id="confirm-dialog-confirm">Confirm</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
